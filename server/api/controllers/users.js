@@ -74,18 +74,21 @@ exports.delete = async (req, res) => {
   }
 };
 
-exports.isValidPassword = async (req, res) => {
+exports.checkPassword = async (password) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).send({ message: 'User not found.' });
     }
-    const isValid = await bcrypt.compare(req.body.password, user.password);
-    res.status(200).send({ isValid });
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).send({ message: 'Invalid password.' });
+    }
+    res.status(200).send({ message: 'Password is valid.' });
   } catch (err) {
     console.error(err);
     res
       .status(500)
-      .send({ message: 'An error occurred while validating the password.' });
+      .send({ message: 'An error occurred while checking password.' });
   }
 };
